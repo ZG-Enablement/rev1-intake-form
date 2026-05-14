@@ -10,32 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Jira API token
+      - name: Test Jira connection via Netlify proxy
         id: check
-        env:
-          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
         run: |
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            --user "$JIRA_EMAIL:$JIRA_API_TOKEN" \
-            -H "Accept: application/json" \
-            "https://zillowgroup.atlassian.net/rest/api/3/myself")
+            "https://rev1-intake-form.netlify.app/jira-api/rest/api/3/myself")
           echo "http_status=$HTTP_STATUS" >> $GITHUB_OUTPUT
-          echo "Jira API responded with HTTP $HTTP_STATUS"
+          echo "Netlify proxy responded with HTTP $HTTP_STATUS"
 
-      - name: Create Jira alert issue if token is failing
+      - name: Create Jira alert issue if connection is failing
         if: steps.check.outputs.http_status != '200'
         env:
-          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
-          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           HTTP_STATUS: ${{ steps.check.outputs.http_status }}
         run: |
           CHECKED_AT=$(date -u "+%Y-%m-%d %H:%M UTC")
           curl -s -X POST \
-            --user "$JIRA_EMAIL:$JIRA_API_TOKEN" \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
-            "https://zillowgroup.atlassian.net/rest/api/3/issue" \
+            "https://rev1-intake-form.netlify.app/jira-api/rest/api/3/issue" \
             -d "{
               \"fields\": {
                 \"project\": { \"key\": \"REV1\" },
@@ -55,7 +47,7 @@ jobs:
                     \"type\": \"paragraph\",
                     \"content\": [{
                       \"type\": \"text\",
-                      \"text\": \"Steps to fix: 1) Generate a new API token at https://id.atlassian.com/manage-profile/security/api-tokens  2) Update the JIRA_API_TOKEN environment variable in Netlify (rev1-intake-form site settings)  3) Update the JIRA_API_TOKEN secret in this GitHub repo (Settings > Secrets > Actions)\"
+                      \"text\": \"Steps to fix: 1) Generate a new API token at https://id.atlassian.com/manage-profile/security/api-tokens  2) Update the JIRA_API_TOKEN environment variable in Netlify (rev1-intake-form site settings)\"
                     }]
                   }]
                 }
