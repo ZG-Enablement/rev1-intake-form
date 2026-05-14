@@ -684,23 +684,38 @@ return true;
 }
 
 /* ── ADF builder ──────────────────────────────────────────── */
-function buildADF(text) {
+function buildADF(text, links = []) {
+const content = [];
 if (!text || !text.trim()) {
-return { type: 'doc', version: 1, content: [{ type: 'paragraph', content: [{ type: 'text', text: ' ' }] }] };
-}
+content.push({ type: 'paragraph', content: [{ type: 'text', text: ' ' }] });
+} else {
 const blocks = text.split(/\n{2,}/);
-const content = blocks.map(block => {
+blocks.forEach(block => {
 const lines = block.split('\n');
 const inlineContent = [];
 lines.forEach((line, i) => {
 if (i > 0) inlineContent.push({ type: 'hardBreak' });
 if (line) inlineContent.push({ type: 'text', text: line });
 });
-return {
+content.push({
 type: 'paragraph',
 content: inlineContent.length ? inlineContent : [{ type: 'text', text: ' ' }]
-};
 });
+});
+}
+if (links.length > 0) {
+content.push({
+type: 'paragraph',
+content: [{ type: 'text', text: '🔗 Reference Links:', marks: [{ type: 'strong' }] }]
+});
+links.forEach(link => {
+const label = (link.title && link.title !== link.url) ? link.title : link.url;
+content.push({
+type: 'paragraph',
+content: [{ type: 'text', text: label, marks: [{ type: 'link', attrs: { href: link.url } }] }]
+});
+});
+}
 return { type: 'doc', version: 1, content };
 }
 
@@ -769,7 +784,7 @@ const payload = {
 project: { key: JIRA_PROJECT },
 issuetype: { name: issueType },
 summary: document.getElementById('summary').value.trim(),
-description: buildADF(document.getElementById('description').value.trim()),
+description: buildADF(document.getElementById('description').value.trim(), addedLinks),
 priority: { name: priority },
 };
 
