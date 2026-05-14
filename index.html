@@ -739,8 +739,9 @@
 
   /* ── Build payload ────────────────────────────────────────── */
   function buildPayload({ reporterAccountId }) {
-    const labels   = document.getElementById('labels').value
-      .split(',').map(l => l.trim()).filter(Boolean);
+    const labels   = ['intake-form-submission',
+      ...document.getElementById('labels').value
+        .split(',').map(l => l.trim()).filter(Boolean)];
     const dueDate  = document.getElementById('dueDate').value || null;
     const issueType = getRadioValue('issueType') || 'Task';
     const priority  = getRadioValue('priority')  || 'Medium';
@@ -753,7 +754,7 @@
       priority:    { name: priority },
     };
 
-    if (labels.length)       payload.labels   = labels;
+    payload.labels = labels;
     if (dueDate)             payload.duedate  = dueDate;
     if (assigneeId)          payload.assignee = { accountId: assigneeId };
     if (reporterAccountId)   payload.reporter = { accountId: reporterAccountId };
