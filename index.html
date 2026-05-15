@@ -926,10 +926,10 @@ async function checkConnection() {
       <span style="color:#5a6072;font-size:0.8rem;">Checked at ${new Date().toLocaleString()}</span></span>`;
   } catch (e) {
     out.innerHTML = `<span style="color:#e53e3e">❌ Connection failed: ${e.message}<br>
-      <span style="font-size:0.8rem;">The API token stored in Netlify may need to be rotated.<br>
+      <span style="font-size:0.8rem;">The API token stored in Vercel may need to be rotated.<br>
       Renew it at <a href="https://id.atlassian.com/manage-profile/security/api-tokens"
       target="_blank" style="color:#9b1c1c;">id.atlassian.com → Security → API tokens</a>
-      then update the <code>JIRA_API_TOKEN</code> environment variable in Netlify.</span></span>`;
+      then update the <code>JIRA_API_TOKEN</code> environment variable in Vercel.</span></span>`;
   } finally {
     btn.disabled = false;
   }
